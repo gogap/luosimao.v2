@@ -1,13 +1,13 @@
 package luosimao
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
 )
@@ -54,7 +54,7 @@ func (p *VoiceSender) Send(req VoiceRequest) (resp Response, err error) {
 	params.Add("mobile", req.Mobile)
 	params.Add("code", strCode)
 
-	request, err := http.NewRequest("POST", p.sendUrl, bytes.NewBuffer([]byte(params.Encode())))
+	request, err := http.NewRequest("POST", p.sendUrl, strings.NewReader(params.Encode()))
 	if err != nil {
 		return
 	}
@@ -88,7 +88,7 @@ func (p *VoiceSender) Send(req VoiceRequest) (resp Response, err error) {
 
 func (p *VoiceSender) Status() (status Status, err error) {
 	params := url.Values{}
-	request, err := http.NewRequest("POST", p.sendUrl, bytes.NewBuffer([]byte(params.Encode())))
+	request, err := http.NewRequest("POST", p.sendUrl, strings.NewReader(params.Encode()))
 	if err != nil {
 		return
 	}

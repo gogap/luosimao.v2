@@ -1,7 +1,6 @@
 package luosimao
 
 import (
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
 )
@@ -56,12 +56,12 @@ func (p *SMSSender) Send(req SMSRequest) (resp Response, err error) {
 	params.Add("mobile", req.Mobile)
 	params.Add("message", req.Message)
 
-	request, err := http.NewRequest("POST", p.sendUrl, bytes.NewBuffer([]byte(params.Encode())))
+	request, err := http.NewRequest("POST", p.sendUrl, strings.NewReader(params.Encode()))
 	if err != nil {
 		log.Fatal(err)
 		return
 	}
-	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	request.Header.Set("Authorization", p.auth.BasicAuthorization())
 
 	client := p.clientPool.Get().(*http.Client)
@@ -98,11 +98,11 @@ func (p *SMSSender) BatchSend(req BatchSMSRequest) (resp Response, err error) {
 	params.Add("message", req.Message)
 	params.Add("time", req.Time)
 
-	request, err := http.NewRequest("POST", p.sendUrl, bytes.NewBuffer([]byte(params.Encode())))
+	request, err := http.NewRequest("POST", p.sendUrl, strings.NewReader(params.Encode()))
 	if err != nil {
 		return
 	}
-	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	request.Header.Set("Authorization", p.auth.BasicAuthorization())
 
 	client := p.clientPool.Get().(*http.Client)
@@ -132,7 +132,7 @@ func (p *SMSSender) BatchSend(req BatchSMSRequest) (resp Response, err error) {
 
 func (p *SMSSender) Status() (status Status, err error) {
 	params := url.Values{}
-	request, err := http.NewRequest("POST", p.sendUrl, bytes.NewBuffer([]byte(params.Encode())))
+	request, err := http.NewRequest("POST", p.sendUrl, strings.NewReader(params.Encode()))
 	if err != nil {
 		return
 	}
